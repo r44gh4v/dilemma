@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import dilemmaRoutes from './routes/dilemmas.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -27,6 +28,9 @@ app.use('/api/', limiter);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/dilemmas', dilemmaRoutes);
+
+// Global error handler (must be last)
+app.use(errorHandler);
 
 // DB Connect
 mongoose.connect(process.env.MONGODB_URI)

@@ -3,13 +3,29 @@ import User from '../models/User.js';
 import Counter from '../models/Counter.js';
 import { generateAnonymousId } from '../utils/generateId.js';
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Missing fields' });
+    
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ error: 'User exists' });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
 
     const anonymousId = await generateAnonymousId();
     const user = new User({ email, password, anonymousId });
@@ -24,16 +40,23 @@ export const register = async (req, res) => {
     });
     res.json({ anonymousId });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
     const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password)))
+    if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     const token = jwt.sign({ id: user._id, anonymousId: user.anonymousId }, process.env.JWT_SECRET, {
       expiresIn: '24h',
@@ -46,7 +69,7 @@ export const login = async (req, res) => {
     });
     res.json({ anonymousId: user.anonymousId });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
