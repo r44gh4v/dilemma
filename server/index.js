@@ -38,7 +38,15 @@ app.use('/api/', generalLimiter);
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/dilemmas', dilemmaRoutes);
 app.use(errorHandler);
+
+// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('DB Error:', err));
 
-app.listen(PORT);
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// Export for Vercel serverless
+export default app;

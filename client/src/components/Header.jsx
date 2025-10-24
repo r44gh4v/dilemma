@@ -38,18 +38,18 @@ const Header = () => {
                 MY DILEMMAS
               </Link>
 
-              {user?.anonymousId && (
-                <span className="text-accent-blue font-mono text-xs flex items-center sm:text-lg tracking-widest">
-                  {user.anonymousId}
-                </span>
-              )}
-
               <button
                 onClick={handleLogout}
                 className="btn btn-logout px-3 text-xs sm:text-sm"
               >
                 LOGOUT
               </button>
+
+              {user?.anonymousId && (
+                <span className="text-accent-blue font-mono text-xs flex items-center sm:text-lg tracking-widest">
+                  {user.anonymousId}
+                </span>
+              )}
 
             </>
           ) : (

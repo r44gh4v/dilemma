@@ -33,3 +33,5 @@ coverage/
 
 # Vercel
 .vercel
+
+deploy.md
