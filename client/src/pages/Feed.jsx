@@ -4,6 +4,7 @@ import { useDilemmaState, useAppDispatch, useAsyncAction } from '../hooks/useSto
 import InfiniteScroll from 'react-infinite-scroll-component';
 import DilemmaCard from '../components/DilemmaCard.jsx';
 import SkeletonLoader from '../components/SkeletonLoader.jsx';
+import LoadingBanner from '../components/LoadingBanner.jsx';
 
 const Feed = () => {
   const { dilemmas, page, hasMore } = useDilemmaState();
@@ -52,10 +53,8 @@ const Feed = () => {
             next={loadMore}
             hasMore={hasMore}
             loader={
-              <div className="text-center py-8">
-                <div className="inline-block bg-dark-blue bg-opacity-70 backdrop-blur-md border-2 border-light-blue border-opacity-40 px-6 py-3 shadow-glow">
-                  <span className="text-light-blue font-mono text-sm tracking-wider uppercase">Loading more...</span>
-                </div>
+              <div className="py-6">
+                <LoadingBanner message="Loading More" />
               </div>
             }
           >

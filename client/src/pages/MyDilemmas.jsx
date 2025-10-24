@@ -3,6 +3,7 @@ import { fetchUserDilemmas, deleteDilemma } from '../store/dilemmasSlice.js';
 import { useUserDilemmas, useAsyncAction } from '../hooks/useStore.js';
 import { useLoading } from '../contexts/LoadingContext.jsx';
 import SkeletonLoader from '../components/SkeletonLoader.jsx';
+import LoadingBanner from '../components/LoadingBanner.jsx';
 import DilemmaCard from '../components/DilemmaCard.jsx';
 import Panel from '../components/ui/Panel.jsx';
 import Button from '../components/ui/Button.jsx';
@@ -34,13 +35,16 @@ const MyDilemmas = () => {
     <div className="min-h-screen pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
-        <div className="text-center">
+        <div className="text-center mb-8">
           <h2 className="heading">My Dilemmas</h2>
           <div className="heading-rule"></div>
         </div>
         
         {loading ? (
-          <SkeletonLoader type="feed" />
+          <div>
+            <LoadingBanner message="Loading Your Dilemmas" />
+            <SkeletonLoader type="feed" />
+          </div>
         ) : userDilemmas.length === 0 ? (
           <Panel className="text-center py-16">
             <div className="text-accent-blue font-mono text-lg font-bold mb-8 tracking-[0.25em] uppercase">No dilemmas yet</div>

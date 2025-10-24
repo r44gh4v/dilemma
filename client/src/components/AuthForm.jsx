@@ -69,8 +69,12 @@ const AuthForm = () => {
           />
         </div>
 
-        <Button type="submit" loading={isLoading} disabled={isLoading} variant="primary" className="w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed">
-          {isLoading ? 'Processing...' : type === 'login' ? 'Login' : 'Create Account'}
+        <Button type="submit" loading={isLoading} disabled={isLoading} variant="primary" className="w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed">
+          {isLoading ? (
+            type === 'login' ? 'Logging In...' : 'Creating Account...'
+          ) : (
+            type === 'login' ? 'Login' : 'Create Account'
+          )}
         </Button>
 
         <div className="mt-10 text-center border-t border-accent-blue border-opacity-30 pt-8">
