@@ -32,7 +32,17 @@ const AuthForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12">
-      <Panel className="w-full max-w-lg font-mono">
+      <Panel className="w-full max-w-lg font-mono relative">
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-dark-blue bg-opacity-95 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-8 border-2 border-accent-blue border-opacity-50">
+            <div className="w-24 h-24 border-4 border-accent-blue animate-spin"></div>
+            <p className="text-accent-blue font-mono text-lg tracking-[0.2em] uppercase">
+              Loading...
+            </p>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} autoComplete="on">
         <div className="mb-10 text-center">
           <h2 className="heading">{type === 'login' ? 'Login' : 'Register'}</h2>
@@ -69,12 +79,8 @@ const AuthForm = () => {
           />
         </div>
 
-        <Button type="submit" loading={isLoading} disabled={isLoading} variant="primary" className="w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed">
-          {isLoading ? (
-            type === 'login' ? 'Logging In...' : 'Creating Account...'
-          ) : (
-            type === 'login' ? 'Login' : 'Create Account'
-          )}
+        <Button type="submit" loading={isLoading} disabled={isLoading} variant="primary" className="w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed">
+          {isLoading ? 'Processing...' : type === 'login' ? 'Login' : 'Create Account'}
         </Button>
 
         <div className="mt-10 text-center border-t border-accent-blue border-opacity-30 pt-8">

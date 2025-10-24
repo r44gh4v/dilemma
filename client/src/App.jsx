@@ -4,7 +4,7 @@ import { LoadingProvider } from './contexts/LoadingContext.jsx';
 import Header from './components/Header.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import GlobalLoadingOverlay from './components/GlobalLoadingOverlay.jsx';
-import LoadingSpinner from './components/LoadingSpinner.jsx';
+import SimpleLoader from './components/SimpleLoader.jsx';
 
 const Landing = lazy(() => import('./pages/Landing.jsx'));
 const Feed = lazy(() => import('./pages/Feed.jsx'));
@@ -20,7 +20,7 @@ function App() {
       <Router>
         <Header />
         <GlobalLoadingOverlay />
-        <Suspense fallback={<LoadingSpinner fullScreen message="Loading page..." />}>
+        <Suspense fallback={<SimpleLoader fullScreen message="Loading..." />}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/feed" element={<Feed />} />

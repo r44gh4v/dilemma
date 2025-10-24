@@ -86,7 +86,7 @@ const Post = () => {
 
   return (
     <div className="min-h-screen pt-24 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">\n        
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center">
           <h2 className="heading">Create Dilemma</h2>
           <div className="heading-rule"></div>

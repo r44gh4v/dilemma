@@ -3,8 +3,6 @@ import { fetchDilemmas, incrementPage } from '../store/dilemmasSlice.js';
 import { useDilemmaState, useAppDispatch, useAsyncAction } from '../hooks/useStore.js';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import DilemmaCard from '../components/DilemmaCard.jsx';
-import SkeletonLoader from '../components/SkeletonLoader.jsx';
-import LoadingBanner from '../components/LoadingBanner.jsx';
 
 const Feed = () => {
   const { dilemmas, page, hasMore } = useDilemmaState();
@@ -17,9 +15,10 @@ const Feed = () => {
     if (didMountRef.current) return;
     didMountRef.current = true;
     if (dilemmas.length === 0) {
-      execute(fetchDilemmas({ page }), 'Loading feed...');
+      execute(fetchDilemmas({ page: 1 }), 'Loading feed...');
     }
-  }, [execute, dilemmas.length, page]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Load next page when page number increments
   useEffect(() => {
@@ -36,9 +35,12 @@ const Feed = () => {
   // Show skeleton on initial load
   if (isLoading && dilemmas.length === 0) {
     return (
-      <div className="min-h-screen pt-24 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <SkeletonLoader type="feed" />
+      <div className="min-h-screen pt-24 pb-12 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-24 h-24 border-4 border-accent-blue animate-spin mx-auto mb-8"></div>
+          <p className="text-accent-blue font-mono text-lg tracking-[0.2em] uppercase">
+            Loading...
+          </p>
         </div>
       </div>
     );
@@ -53,8 +55,13 @@ const Feed = () => {
             next={loadMore}
             hasMore={hasMore}
             loader={
-              <div className="py-6">
-                <LoadingBanner message="Loading More" />
+              <div className="text-center py-8">
+                <div className="inline-flex items-center gap-4 bg-dark-blue bg-opacity-80 backdrop-blur-md border-2 border-accent-blue border-opacity-40 px-8 py-4 shadow-glow-intense">
+                  <div className="w-5 h-5 border-2 border-accent-blue animate-spin"></div>
+                  <span className="text-accent-blue font-mono text-sm tracking-[0.2em] uppercase">
+                    Loading...
+                  </span>
+                </div>
               </div>
             }
           >

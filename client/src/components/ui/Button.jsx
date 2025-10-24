@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import InlineLoader from '../InlineLoader.jsx';
 
 const variantClass = (variant) => {
   switch (variant) {
@@ -28,7 +27,7 @@ const Button = ({
   
   const content = loading ? (
     <span className="inline-flex items-center gap-2">
-      <InlineLoader size="small" />
+      <div className="w-4 h-4 border-2 border-current animate-spin"></div>
       {children}
     </span>
   ) : children;

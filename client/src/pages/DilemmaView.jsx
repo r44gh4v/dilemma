@@ -16,7 +16,8 @@ const DilemmaView = () => {
     if (lastIdRef.current === id) return;
     lastIdRef.current = id;
     execute(fetchDilemmaById(id), 'Loading dilemma...');
-  }, [execute, id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   if (loading && !singleDilemma) return null;
   if (!singleDilemma) return null;
