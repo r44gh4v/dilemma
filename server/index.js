@@ -34,19 +34,37 @@ const authLimiter = rateLimit({
   message: { error: 'Too many login attempts, please try again later.' }
 });
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ message: 'Dilemma API is running!' });
+});
+
 app.use('/api/', generalLimiter);
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/dilemmas', dilemmaRoutes);
 app.use(errorHandler);
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .catch(err => console.error('DB Error:', err));
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
+    console.log('MongoDB connected');
+  } catch (err) {
+    console.error('DB Error:', err);
+  }
+};
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
+  connectDB();
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
 // Export for Vercel serverless
-export default app;
+export default async (req, res) => {
+  await connectDB();
+  return app(req, res);
+};
