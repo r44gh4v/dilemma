@@ -1,5 +1,6 @@
 import Counter from '../models/Counter.js';
 
+// Generate sequential anonymous IDs (#1, #2, #3, etc.)
 export const generateAnonymousId = async () => {
   const counter = await Counter.findByIdAndUpdate(
     'anonymousId',

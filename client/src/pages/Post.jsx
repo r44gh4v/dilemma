@@ -15,7 +15,7 @@ const Post = () => {
   const [optionB, setOptionB] = useState({ text: '', file: null, previewUrl: '' });
   const [submitting, setSubmitting] = useState(false);
   const { execute, isLoading } = useAsyncAction('createDilemma');
-  const loading = useLoading('createDilemma');
+  const loading = useLoading('createDilemma'); // For multi-stage message updates
   const navigate = useNavigate();
 
   const handleSubmit = useCallback(async (e) => {
@@ -29,6 +29,7 @@ const Post = () => {
       setSubmitting(true);
       loading.start('Uploading images...');
       
+      // Upload images first
       let imageUrlA = '';
       let imageUrlB = '';
       if (optionA.file) {
@@ -48,6 +49,7 @@ const Post = () => {
         imageUrlB = dataB.url;
       }
 
+      // Create dilemma
       loading.updateMessage('Creating dilemma...');
       await execute(createDilemma({
         optionA: optionA.text,

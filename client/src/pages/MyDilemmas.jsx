@@ -11,6 +11,8 @@ const MyDilemmas = () => {
   const { userDilemmas, loading } = useUserDilemmas();
   const { execute } = useAsyncAction('userDilemmas');
   const deleteLoading = useLoading('deleteDilemma');
+  
+  // Prevent duplicate fetch on mount
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -51,7 +53,7 @@ const MyDilemmas = () => {
                 key={dilemma._id} 
                 dilemma={dilemma} 
                 onDelete={handleDelete}
-                showComments={false}
+                showComments={true}
               />
             ))}
           </div>

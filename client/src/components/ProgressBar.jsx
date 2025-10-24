@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 
+// Progress bar with indeterminate and determinate modes
 const ProgressBar = memo(({ 
   duration = 2000, 
   indeterminate = false,
@@ -7,12 +8,14 @@ const ProgressBar = memo(({
 }) => {
   const [progress, setProgress] = useState(0);
 
+  // Smooth progress animation for determinate mode
   useEffect(() => {
     if (indeterminate) return;
     
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 90) return prev;
+        // Asymptotic approach to 100%
         return prev + (100 - prev) * 0.1;
       });
     }, 100);
@@ -20,6 +23,7 @@ const ProgressBar = memo(({
     return () => clearInterval(interval);
   }, [indeterminate]);
 
+  // Indeterminate mode with shimmer animation
   if (indeterminate) {
     return (
       <div className={`w-full h-1 bg-dark-blue bg-opacity-30 overflow-hidden ${className}`}>
@@ -31,6 +35,7 @@ const ProgressBar = memo(({
     );
   }
 
+  // Determinate mode with actual progress
   return (
     <div className={`w-full h-1 bg-dark-blue bg-opacity-30 overflow-hidden ${className}`}>
       <div 

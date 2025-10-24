@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 
+// Middleware to verify JWT token from cookies
 export const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ error: 'Access denied' });
@@ -11,6 +12,7 @@ export const authenticateToken = (req, res, next) => {
   });
 };
 
+// Optional authentication - allows unauthenticated access
 export const optionalAuth = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {

@@ -60,19 +60,26 @@ const DilemmaCard = ({ dilemma, onDelete, showComments = true }) => {
   return (
     <Panel className="sm:p-8 mb-8 hover:shadow-glow-intense transition-all duration-300">
 
+      {onDelete && (
+        <div className="mb-4 pb--0 border-b-0 border-border-primary">
+          <Button onClick={handleDeleteClick} variant="danger" className="px-6 py-3 w-full text-sm">
+            Delete
+          </Button>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-4">
-        
+
         <div className="text-sm sm:text-base text-accent-blue font-mono font-bold tracking-[0.2em] uppercase">
           User {dilemma.anonymousId}
         </div>
 
-        <button 
-          onClick={handleLike} 
-          className={`btn icon-btn transition-all duration-300 ${
-            dilemma.userLiked 
-              ? 'bg-[rgba(30,58,95,0.7)] border-[0.15rem] border-[rgba(96,165,250,0.9)]' 
+        <button
+          onClick={handleLike}
+          className={`btn icon-btn transition-all duration-300 ${dilemma.userLiked
+              ? 'bg-[rgba(30,58,95,0.7)] border-[0.15rem] border-[rgba(96,165,250,0.9)]'
               : 'btn-secondary'
-          }  `}
+            }  `}
         >
           <span className="group-hover:scale-125 transition-transform duration-300">♥️ {dilemma.likeCount}</span>
         </button>
@@ -109,13 +116,6 @@ const DilemmaCard = ({ dilemma, onDelete, showComments = true }) => {
         </div>
       )}
 
-      {onDelete && (
-        <div className="mt-6 pt-6 border-t border-border-primary">
-          <Button onClick={handleDeleteClick} variant="danger" className="px-6 py-3 text-sm">
-            Delete
-          </Button>
-        </div>
-      )}
 
     </Panel>
   );

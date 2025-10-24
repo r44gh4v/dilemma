@@ -8,6 +8,8 @@ const DilemmaView = () => {
   const { id } = useParams();
   const { singleDilemma, loading } = useSingleDilemma();
   const { execute } = useAsyncAction('singleDilemma');
+  
+  // Prevent re-fetch when ID hasn't changed
   const lastIdRef = useRef(null);
 
   useEffect(() => {

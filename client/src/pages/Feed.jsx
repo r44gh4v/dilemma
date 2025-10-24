@@ -10,6 +10,7 @@ const Feed = () => {
   const dispatch = useAppDispatch();
   const { execute, isLoading } = useAsyncAction('feed');
 
+  // Prevent double fetch on mount
   const didMountRef = useRef(false);
   useEffect(() => {
     if (didMountRef.current) return;
@@ -19,6 +20,7 @@ const Feed = () => {
     }
   }, [execute, dilemmas.length, page]);
 
+  // Load next page when page number increments
   useEffect(() => {
     if (!didMountRef.current) return;
     if (page > 1) {
@@ -30,6 +32,7 @@ const Feed = () => {
     dispatch(incrementPage());
   }, [dispatch]);
 
+  // Show skeleton on initial load
   if (isLoading && dilemmas.length === 0) {
     return (
       <div className="min-h-screen pt-24 pb-12">

@@ -18,8 +18,8 @@ const CommentThread = memo(({ comments, onComment }) => {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-3">
-        <div className="h-0.5 w-8 bg-accent-blue shadow-glow"></div>
+      <div className="flex items-center mb-3">
+        <div className="h-0.5 bg-accent-blue shadow-glow"></div>
         <h4 className="text-sm text-accent-blue font-bold tracking-[0.2em] uppercase">Comments ({comments.length})</h4>
       </div>
       
@@ -42,7 +42,7 @@ const CommentThread = memo(({ comments, onComment }) => {
         {comments.slice(0, visibleComments).map((comment) => (
           <div key={comment._id} className="relative bg-dark-blue bg-opacity-60 backdrop-blur-sm border-l-2 border-accent-blue border-opacity-40 px-4 py-2 hover:bg-opacity-80 hover:border-opacity-100 hover:shadow-glow transition-all duration-300">
             <div className="text-sm text-light-blue font-mono">
-              <span className="text-accent-blue font-bold tracking-wider">#{comment.anonymousId}</span>
+              <span className="text-accent-blue font-bold tracking-wider">{comment.anonymousId}</span>
               <span className="mx-3 text-light-blue opacity-40">·</span>
               <span className="text-white leading-relaxed">{comment.text}</span>
             </div>

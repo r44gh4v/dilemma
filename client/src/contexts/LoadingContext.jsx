@@ -5,6 +5,7 @@ const LoadingContext = createContext(null);
 export const LoadingProvider = ({ children }) => {
   const [loadingStates, setLoadingStates] = useState({});
 
+  // Start loading for a specific key with a message
   const startLoading = useCallback((key = 'global', message = 'Loading...') => {
     setLoadingStates(prev => ({
       ...prev,
@@ -16,6 +17,7 @@ export const LoadingProvider = ({ children }) => {
     }));
   }, []);
 
+  // Stop loading for a specific key
   const stopLoading = useCallback((key = 'global') => {
     setLoadingStates(prev => {
       const newState = { ...prev };
@@ -24,6 +26,7 @@ export const LoadingProvider = ({ children }) => {
     });
   }, []);
 
+  // Update loading message during operation
   const updateLoadingMessage = useCallback((key = 'global', message) => {
     setLoadingStates(prev => {
       if (!prev[key]) return prev;
@@ -49,6 +52,7 @@ export const LoadingProvider = ({ children }) => {
   );
 };
 
+// Hook for component-level loading state
 export const useLoading = (key) => {
   const context = useContext(LoadingContext);
   if (!context) {
@@ -64,6 +68,7 @@ export const useLoading = (key) => {
     isLoading: !!loadingStates[key]?.active,
     message: loadingStates[key]?.message || 'Loading...',
     duration: loadingStates[key]?.startTime ? Date.now() - loadingStates[key].startTime : 0,
+    // Wrap async function with loading state
     withLoading: async (fn, message) => {
       startLoading(key, message);
       try {
@@ -75,6 +80,7 @@ export const useLoading = (key) => {
   }), [key, startLoading, stopLoading, updateLoadingMessage, loadingStates]);
 };
 
+// Hook for accessing global loading states
 export const useGlobalLoading = () => {
   const context = useContext(LoadingContext);
   if (!context) {

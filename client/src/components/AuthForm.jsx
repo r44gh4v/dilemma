@@ -33,32 +33,38 @@ const AuthForm = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12">
       <Panel className="w-full max-w-lg font-mono">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="on">
         <div className="mb-10 text-center">
           <h2 className="heading">{type === 'login' ? 'Login' : 'Register'}</h2>
           <div className="heading-rule"></div>
         </div>
 
         <div className="mb-7">
-          <label className="label">Email</label>
+          <label htmlFor="email" className="label">Email</label>
           <input
+            id="email"
+            name="email"
             type="email"
             placeholder="your@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
             className="input"
           />
         </div>
 
         <div className="mb-10">
-          <label className="label">Password</label>
+          <label htmlFor="password" className="label">Password</label>
           <input
+            id="password"
+            name="password"
             type="password"
             placeholder="••••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete={type === 'login' ? 'current-password' : 'new-password'}
             className="input"
           />
         </div>

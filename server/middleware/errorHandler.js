@@ -1,6 +1,8 @@
+// Global error handler middleware
 export const errorHandler = (err, req, res, next) => {
   console.error('Error:', err);
 
+  // Mongoose validation errors
   if (err.name === 'ValidationError') {
     const errors = Object.values(err.errors).map(e => e.message);
     return res.status(400).json({
@@ -8,6 +10,7 @@ export const errorHandler = (err, req, res, next) => {
     });
   }
 
+  // MongoDB duplicate key errors
   if (err.code === 11000) {
     const field = Object.keys(err.keyPattern)[0];
     return res.status(400).json({
