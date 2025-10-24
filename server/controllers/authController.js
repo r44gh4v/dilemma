@@ -1,13 +1,11 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import Counter from '../models/Counter.js';
 import { generateAnonymousId } from '../utils/generateId.js';
 
 export const register = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     
-    // Validation
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
@@ -16,7 +14,6 @@ export const register = async (req, res, next) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: 'Invalid email format' });
@@ -48,7 +45,6 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     
-    // Validation
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }

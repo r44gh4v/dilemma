@@ -1,15 +1,19 @@
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
-import { promisify } from 'util';
 import path from 'path';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const getCloudinary = () => {
+  if (!cloudinary.config().cloud_name) {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true
+    });
+  }
+  return cloudinary;
+};
 
-// File filter for images only
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif|webp/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -21,11 +25,10 @@ const fileFilter = (req, file, cb) => {
   cb(new Error('Only image files (jpeg, jpg, png, gif, webp) are allowed'));
 };
 
-// Configure multer with file size limit and file filter
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter: fileFilter
 });
@@ -33,12 +36,14 @@ const upload = multer({
 export const uploadImage = (req, res, next) => {
   if (!req.file) return next();
   
-  const uploadStream = cloudinary.uploader.upload_stream(
+  const cloud = getCloudinary();
+  
+  const uploadStream = cloud.uploader.upload_stream(
     { 
       resource_type: 'image', 
       transformation: [{ width: 800, height: 800, crop: 'limit' }],
-      format: 'webp', // Convert to webp for better compression
-      quality: 'auto' // Optimize quality
+      format: 'webp',
+      quality: 'auto'
     },
     (error, result) => {
       if (error) {

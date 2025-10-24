@@ -11,30 +11,34 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Middleware
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
-
-// Rate limiting
 import rateLimit from 'express-rate-limit';
-const limiter = rateLimit({ windowMs: 60 * 1000, max: 10 });
-app.use('/api/', limiter);
+const generalLimiter = rateLimit({ 
+  windowMs: 60 * 1000,
+  max: 100,
+  message: { error: 'Too many requests, please try again later.' }
+});
+const actionLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: { error: 'Too many actions, please slow down.' }
+});
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many login attempts, please try again later.' }
+});
 
-// Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/', generalLimiter);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/dilemmas', dilemmaRoutes);
-
-// Global error handler (must be last)
 app.use(errorHandler);
-
-// DB Connect
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('DB Error:', err));
 
-app.listen(PORT, () => console.log(`Server on port ${PORT}`));
+app.listen(PORT);

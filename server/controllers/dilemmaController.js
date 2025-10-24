@@ -12,7 +12,22 @@ export const getDilemmas = async (req, res, next) => {
       .skip(skip)
       .limit(limit)
       .select('-userId');
-    res.json(dilemmas);
+    
+    const userId = req.user?.id;
+    const dilemmasWithVote = dilemmas.map(dilemma => {
+      const dilemmaObj = dilemma.toObject();
+      if (userId) {
+        const userVote = dilemmaObj.votes?.find(v => v.userId && v.userId.toString() === userId.toString());
+        dilemmaObj.userVote = userVote?.choice || null;
+        dilemmaObj.userLiked = dilemmaObj.likes?.some(l => l && l.toString() === userId.toString()) || false;
+      } else {
+        dilemmaObj.userVote = null;
+        dilemmaObj.userLiked = false;
+      }
+      return dilemmaObj;
+    });
+    
+    res.json(dilemmasWithVote);
   } catch (err) {
     next(err);
   }
@@ -25,7 +40,27 @@ export const getDilemmaById = async (req, res, next) => {
       .populate('votes.userId', 'anonymousId')
       .populate('likes', 'anonymousId');
     if (!dilemma) return res.status(404).json({ error: 'Not found' });
-    res.json(dilemma);
+    
+    const userId = req.user?.id;
+    const dilemmaObj = dilemma.toObject();
+    if (userId) {
+      const userVote = dilemmaObj.votes?.find(v => {
+        const voteUserId = v.userId?._id || v.userId;
+        return voteUserId && voteUserId.toString() === userId.toString();
+      });
+      dilemmaObj.userVote = userVote?.choice || null;
+      
+      const userLiked = dilemmaObj.likes?.some(l => {
+        const likeUserId = l._id || l;
+        return likeUserId && likeUserId.toString() === userId.toString();
+      });
+      dilemmaObj.userLiked = userLiked || false;
+    } else {
+      dilemmaObj.userVote = null;
+      dilemmaObj.userLiked = false;
+    }
+    
+    res.json(dilemmaObj);
   } catch (err) {
     next(err);
   }
@@ -33,9 +68,8 @@ export const getDilemmaById = async (req, res, next) => {
 
 export const createDilemma = async (req, res, next) => {
   try {
-    const { optionA, optionB } = req.body;
+    const { optionA, optionB, imageUrlA = '', imageUrlB = '' } = req.body;
     
-    // Validation
     if (!optionA || !optionB) {
       return res.status(400).json({ error: 'Both options are required' });
     }
@@ -54,11 +88,11 @@ export const createDilemma = async (req, res, next) => {
       anonymousId: user.anonymousId,
       optionA: {
         text: optionA,
-        imageUrl: req.files?.imageA ? req.files.imageA[0].path : undefined,
+        imageUrl: imageUrlA || undefined,
       },
       optionB: {
         text: optionB,
-        imageUrl: req.files?.imageB ? req.files.imageB[0].path : undefined,
+        imageUrl: imageUrlB || undefined,
       },
     });
     await dilemma.save();
@@ -95,7 +129,6 @@ export const voteDilemma = async (req, res, next) => {
   try {
     const { choice } = req.body;
     
-    // Validation
     if (!choice || (choice !== 'A' && choice !== 'B')) {
       return res.status(400).json({ error: 'Choice must be either "A" or "B"' });
     }
@@ -104,25 +137,30 @@ export const voteDilemma = async (req, res, next) => {
     if (!dilemma) return res.status(404).json({ error: 'Not found' });
 
     const existingVote = dilemma.votes.find((v) => v.userId.toString() === req.user.id);
+    let userVote = null;
+    
     if (existingVote) {
       if (existingVote.choice === choice) {
         dilemma.votes = dilemma.votes.filter((v) => v.userId.toString() !== req.user.id);
         if (choice === 'A') dilemma.votesA--;
         else dilemma.votesB--;
+        userVote = null;
       } else {
         if (existingVote.choice === 'A') dilemma.votesA--;
         else dilemma.votesB--;
         existingVote.choice = choice;
         if (choice === 'A') dilemma.votesA++;
         else dilemma.votesB++;
+        userVote = choice;
       }
     } else {
       dilemma.votes.push({ userId: req.user.id, choice });
       if (choice === 'A') dilemma.votesA++;
       else dilemma.votesB++;
+      userVote = choice;
     }
     await dilemma.save();
-    res.json({ votesA: dilemma.votesA, votesB: dilemma.votesB });
+    res.json({ votesA: dilemma.votesA, votesB: dilemma.votesB, userVote });
   } catch (err) {
     next(err);
   }
@@ -134,15 +172,19 @@ export const likeDilemma = async (req, res, next) => {
     if (!dilemma) return res.status(404).json({ error: 'Not found' });
 
     const likeIndex = dilemma.likes.findIndex((l) => l.toString() === req.user.id);
+    let userLiked = false;
+    
     if (likeIndex > -1) {
       dilemma.likes.splice(likeIndex, 1);
       dilemma.likeCount--;
+      userLiked = false;
     } else {
       dilemma.likes.push(req.user.id);
       dilemma.likeCount++;
+      userLiked = true;
     }
     await dilemma.save();
-    res.json({ likeCount: dilemma.likeCount });
+    res.json({ likeCount: dilemma.likeCount, userLiked });
   } catch (err) {
     next(err);
   }
@@ -152,7 +194,6 @@ export const commentDilemma = async (req, res, next) => {
   try {
     const { text } = req.body;
     
-    // Validation
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return res.status(400).json({ error: 'Comment text is required and cannot be empty' });
     }
@@ -175,8 +216,20 @@ export const commentDilemma = async (req, res, next) => {
 
 export const getUserDilemmas = async (req, res, next) => {
   try {
-    const dilemmas = await Dilemma.find({ userId: req.user.id }).sort({ createdAt: -1 });
-    res.json(dilemmas);
+    const dilemmas = await Dilemma.find({ userId: req.user.id })
+      .populate('comments.userId', 'anonymousId')
+      .sort({ createdAt: -1 });
+    
+    const userId = req.user.id;
+    const dilemmasWithVote = dilemmas.map(dilemma => {
+      const dilemmaObj = dilemma.toObject();
+      const userVote = dilemmaObj.votes?.find(v => v.userId && v.userId.toString() === userId.toString());
+      dilemmaObj.userVote = userVote?.choice || null;
+      dilemmaObj.userLiked = dilemmaObj.likes?.some(l => l && l.toString() === userId.toString()) || false;
+      return dilemmaObj;
+    });
+    
+    res.json(dilemmasWithVote);
   } catch (err) {
     next(err);
   }
