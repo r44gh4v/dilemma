@@ -11,10 +11,15 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// CORS configuration - Allow credentials for cross-origin cookie sharing
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
+  credentials: true, // Required for cookies to work cross-origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 import rateLimit from 'express-rate-limit';
