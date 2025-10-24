@@ -28,12 +28,13 @@ export const register = async (req, res, next) => {
     const user = new User({ email, password, anonymousId });
     await user.save();
 
-    const token = jwt.sign({ id: user._id, anonymousId }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: user._id, anonymousId }, process.env.JWT_SECRET, { expiresIn: '30d' });
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Allow cross-site cookies in production
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/', // Explicitly set path
     });
     res.json({ anonymousId });
   } catch (err) {
@@ -55,13 +56,14 @@ export const login = async (req, res, next) => {
     }
 
     const token = jwt.sign({ id: user._id, anonymousId: user.anonymousId }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
+      expiresIn: '30d',
     });
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Allow cross-site cookies in production
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/', // Explicitly set path
     });
     res.json({ anonymousId: user.anonymousId });
   } catch (err) {
@@ -74,6 +76,7 @@ export const logout = (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Match cookie settings
+    path: '/', // Must match cookie path
   });
   res.json({ message: 'Logged out' });
 };

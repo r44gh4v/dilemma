@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
   try {
     const res = await api.post('/auth/login', { email, password });
-    Cookies.set('anonymousId', res.data.anonymousId, { expires: 1 });
+    Cookies.set('anonymousId', res.data.anonymousId, { expires: 30 });
     return { anonymousId: res.data.anonymousId };
   } catch (err) {
     toast.error(err.response?.data?.error || 'Login failed');
@@ -17,7 +17,7 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
 export const register = createAsyncThunk('auth/register', async ({ email, password }, { rejectWithValue }) => {
   try {
     const res = await api.post('/auth/register', { email, password });
-    Cookies.set('anonymousId', res.data.anonymousId, { expires: 1 });
+    Cookies.set('anonymousId', res.data.anonymousId, { expires: 30 });
     return { anonymousId: res.data.anonymousId };
   } catch (err) {
     toast.error(err.response?.data?.error || 'Registration failed');
@@ -45,7 +45,16 @@ const authSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // Manual logout action for expired sessions
+    clearAuth: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.loading = false;
+      state.error = null;
+      Cookies.remove('anonymousId');
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
@@ -82,4 +91,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { clearAuth } = authSlice.actions;
 export default authSlice.reducer;

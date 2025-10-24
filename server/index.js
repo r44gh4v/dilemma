@@ -52,13 +52,23 @@ app.use(errorHandler);
 // Connect to MongoDB
 let isConnected = false;
 const connectDB = async () => {
-  if (isConnected) return;
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return;
+  }
+  
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
+    }
     isConnected = true;
     console.log('MongoDB connected');
   } catch (err) {
     console.error('DB Error:', err);
+    isConnected = false;
+    throw err;
   }
 };
 
@@ -70,6 +80,12 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Export for Vercel serverless
 export default async (req, res) => {
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    return res.status(503).json({ error: 'Service temporarily unavailable' });
+  }
+  
   return app(req, res);
 };
