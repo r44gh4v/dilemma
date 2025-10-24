@@ -6,3 +6,4 @@ A MERN stack social platform for sharing and voting on dilemmas anonymously.
 
 ## Features
 - Anon dilemma posts with votes/likes/comments.
+- Desktop-focused feed.
