@@ -1,16 +1,27 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/authSlice.js';
+import { useState } from 'react';
 
 const Header = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/');
+  const handleLogout = async () => {
+    if (loggingOut) return; // Prevent double-click
+    setLoggingOut(true);
+    try {
+      await dispatch(logout()).unwrap();
+      navigate('/');
+    } catch (err) {
+      // Even on error, navigate away (local state is cleared)
+      navigate('/');
+    } finally {
+      setLoggingOut(false);
+    }
   };
 
   if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register') {
@@ -40,9 +51,10 @@ const Header = () => {
 
               <button
                 onClick={handleLogout}
-                className="btn btn-logout px-3 text-xs sm:text-sm"
+                disabled={loggingOut}
+                className="btn btn-logout px-3 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                LOGOUT
+                {loggingOut ? 'LOGGING OUT...' : 'LOGOUT'}
               </button>
 
               {user?.anonymousId && (

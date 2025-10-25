@@ -24,19 +24,22 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle 401 (Unauthorized) or 403 (Forbidden) - token expired or invalid
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       const errorMessage = error.response.data?.error;
       
-      // Only handle auth errors, not "Access denied" from missing token on public routes
       if (errorMessage === 'Invalid token' || errorMessage === 'Access denied') {
-        // Import store dynamically to avoid circular dependency
+        const isBrave = navigator.brave && navigator.brave.isBrave;
+        
         import('../store/index.js').then(({ store }) => {
           import('../store/authSlice.js').then(({ clearAuth }) => {
             store.dispatch(clearAuth());
-            toast.error('Session expired. Please login again.');
             
-            // Redirect to login page
+            if (isBrave) {
+              toast.error('Session expired. If using Brave, try disabling shields for this site.', { duration: 4000 });
+            } else {
+              toast.error('Session expired. Please login again.');
+            }
+            
             window.location.href = '/';
           });
         });

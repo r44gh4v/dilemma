@@ -11,7 +11,6 @@ const MyDilemmas = () => {
   const { execute } = useAsyncAction('userDilemmas');
   const deleteLoading = useLoading('deleteDilemma');
 
-  // Prevent duplicate fetch on mount
   const hasFetched = useRef(false);
 
   useEffect(() => {

@@ -19,6 +19,8 @@ const AuthForm = () => {
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+    
     try {
       const action = type === 'login' 
         ? login({ email, password })
@@ -28,7 +30,7 @@ const AuthForm = () => {
       navigate(from, { replace: true });
     } catch (err) {
     }
-  }, [type, email, password, execute, navigate, from]);
+  }, [type, email, password, execute, navigate, from, isLoading]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12">

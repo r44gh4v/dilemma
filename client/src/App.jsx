@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { checkAuth } from './store/authSlice.js';
 import { LoadingProvider } from './contexts/LoadingContext.jsx';
 import Header from './components/Header.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -15,6 +17,15 @@ const MyDilemmas = lazy(() => import('./pages/MyDilemmas.jsx'));
 const DilemmaView = lazy(() => import('./pages/DilemmaView.jsx'));
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const storedId = localStorage.getItem('anonymousId');
+    if (storedId) {
+      dispatch(checkAuth());
+    }
+  }, [dispatch]);
+
   return (
     <LoadingProvider>
       <Router>

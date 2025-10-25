@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, memo } from 'react';
 import { useDispatch } from 'react-redux';
 import { voteDilemma, likeDilemma, commentDilemma } from '../store/dilemmasSlice.js';
 import { useAuthCheck } from '../hooks/useAuthCheck.js';
@@ -7,7 +7,7 @@ import CommentThread from './CommentThread.jsx';
 import Panel from './ui/Panel.jsx';
 import Button from './ui/Button.jsx';
 
-const DilemmaCard = ({ dilemma, onDelete, showComments = true }) => {
+const DilemmaCard = memo(({ dilemma, onDelete, showComments = true }) => {
   const { requireAuth } = useAuthCheck();
   const dispatch = useDispatch();
 
@@ -119,6 +119,8 @@ const DilemmaCard = ({ dilemma, onDelete, showComments = true }) => {
 
     </Panel>
   );
-};
+});
+
+DilemmaCard.displayName = 'DilemmaCard';
 
 export default DilemmaCard;

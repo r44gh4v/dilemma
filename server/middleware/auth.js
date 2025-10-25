@@ -5,7 +5,10 @@ export const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
   
   if (!token) {
-    console.log('Auth failed: No token in cookies');
+    console.log('Auth failed: No token in cookies', {
+      origin: req.headers.origin,
+      userAgent: req.headers['user-agent']?.substring(0, 50)
+    });
     return res.status(401).json({ error: 'Access denied' });
   }
 
@@ -19,7 +22,10 @@ export const authenticateToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    console.error('Auth failed: Token verification error', err.message);
+    console.error('Auth failed: Token verification error', {
+      error: err.message,
+      origin: req.headers.origin
+    });
     return res.status(403).json({ error: 'Invalid token' });
   }
 };

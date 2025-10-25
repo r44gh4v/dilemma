@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../services/api.js';
 import toast from 'react-hot-toast';
+import { login, register, logout, clearAuth, checkAuth } from './authSlice.js';
 
 export const fetchDilemmas = createAsyncThunk('dilemmas/fetchDilemmas', async ({ page, limit = 10 }, { rejectWithValue }) => {
   try {
@@ -106,6 +107,13 @@ const dilemmasSlice = createSlice({
     incrementPage: (state) => {
       state.page += 1;
     },
+    clearDilemmas: (state) => {
+      state.dilemmas = [];
+      state.userDilemmas = [];
+      state.singleDilemma = null;
+      state.page = 1;
+      state.hasMore = true;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -197,9 +205,57 @@ const dilemmasSlice = createSlice({
           state.singleDilemma = action.payload;
         }
         state.userDilemmas = state.userDilemmas.map(updateDilemma);
+      })
+      
+      .addCase(logout.fulfilled, (state) => {
+        state.dilemmas = state.dilemmas.map(d => ({
+          ...d,
+          userVote: null,
+          userLiked: false
+        }));
+        if (state.singleDilemma) {
+          state.singleDilemma = {
+            ...state.singleDilemma,
+            userVote: null,
+            userLiked: false
+          };
+        }
+        state.userDilemmas = [];
+      })
+      .addCase(clearAuth, (state) => {
+        state.dilemmas = state.dilemmas.map(d => ({
+          ...d,
+          userVote: null,
+          userLiked: false
+        }));
+        if (state.singleDilemma) {
+          state.singleDilemma = {
+            ...state.singleDilemma,
+            userVote: null,
+            userLiked: false
+          };
+        }
+        state.userDilemmas = [];
+      })
+      
+      .addCase(login.fulfilled, (state) => {
+        state.dilemmas = [];
+        state.userDilemmas = [];
+        state.singleDilemma = null;
+        state.page = 1;
+        state.hasMore = true;
+      })
+      .addCase(register.fulfilled, (state) => {
+        state.dilemmas = [];
+        state.userDilemmas = [];
+        state.singleDilemma = null;
+        state.page = 1;
+        state.hasMore = true;
+      })
+      .addCase(checkAuth.fulfilled, (state) => {
       });
   },
 });
 
-export const { incrementPage } = dilemmasSlice.actions;
+export const { incrementPage, clearDilemmas } = dilemmasSlice.actions;
 export default dilemmasSlice.reducer;

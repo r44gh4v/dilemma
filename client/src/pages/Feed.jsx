@@ -9,7 +9,6 @@ const Feed = () => {
   const dispatch = useAppDispatch();
   const { execute, isLoading } = useAsyncAction('feed');
 
-  // Prevent double fetch on mount
   const didMountRef = useRef(false);
   useEffect(() => {
     if (didMountRef.current) return;
@@ -20,7 +19,6 @@ const Feed = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load next page when page number increments
   useEffect(() => {
     if (!didMountRef.current) return;
     if (page > 1) {

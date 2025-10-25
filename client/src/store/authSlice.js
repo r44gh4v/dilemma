@@ -1,12 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import Cookies from 'js-cookie';
 import api from '../services/api.js';
 import toast from 'react-hot-toast';
 
 export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
   try {
     const res = await api.post('/auth/login', { email, password });
-    Cookies.set('anonymousId', res.data.anonymousId, { expires: 30 });
+    localStorage.setItem('anonymousId', res.data.anonymousId);
     return { anonymousId: res.data.anonymousId };
   } catch (err) {
     toast.error(err.response?.data?.error || 'Login failed');
@@ -17,7 +16,7 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
 export const register = createAsyncThunk('auth/register', async ({ email, password }, { rejectWithValue }) => {
   try {
     const res = await api.post('/auth/register', { email, password });
-    Cookies.set('anonymousId', res.data.anonymousId, { expires: 30 });
+    localStorage.setItem('anonymousId', res.data.anonymousId);
     return { anonymousId: res.data.anonymousId };
   } catch (err) {
     toast.error(err.response?.data?.error || 'Registration failed');
@@ -28,31 +27,41 @@ export const register = createAsyncThunk('auth/register', async ({ email, passwo
 export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
     await api.post('/auth/logout');
-    Cookies.remove('anonymousId');
-    toast.success('Logged out');
+    localStorage.removeItem('anonymousId');
     return {};
   } catch (err) {
-    toast.error('Logout failed');
-    return rejectWithValue(err.response?.data?.error || 'Logout failed');
+    localStorage.removeItem('anonymousId');
+    console.warn('Server logout failed, but local state cleared:', err);
+    return {};
+  }
+});
+
+export const checkAuth = createAsyncThunk('auth/check', async (_, { rejectWithValue }) => {
+  try {
+    const res = await api.get('/auth/check');
+    localStorage.setItem('anonymousId', res.data.anonymousId);
+    return { anonymousId: res.data.anonymousId };
+  } catch (err) {
+    localStorage.removeItem('anonymousId');
+    return rejectWithValue('Not authenticated');
   }
 });
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user: Cookies.get('anonymousId') ? { anonymousId: Cookies.get('anonymousId') } : null,
-    isAuthenticated: !!Cookies.get('anonymousId'),
+    user: localStorage.getItem('anonymousId') ? { anonymousId: localStorage.getItem('anonymousId') } : null,
+    isAuthenticated: !!localStorage.getItem('anonymousId'),
     loading: false,
     error: null,
   },
   reducers: {
-    // Manual logout action for expired sessions
     clearAuth: (state) => {
       state.user = null;
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
-      Cookies.remove('anonymousId');
+      localStorage.removeItem('anonymousId');
     },
   },
   extraReducers: (builder) => {
@@ -87,6 +96,14 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.loading = false;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
       });
   },
 });

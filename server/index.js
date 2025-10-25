@@ -35,8 +35,9 @@ const actionLimiter = rateLimit({
 });
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { error: 'Too many login attempts, please try again later.' }
+  max: 20, // Increased from 5 to 20 (login + register + checkAuth calls)
+  message: { error: 'Too many login attempts, please try again later.' },
+  skipSuccessfulRequests: true, // Don't count successful requests
 });
 
 // Health check endpoint

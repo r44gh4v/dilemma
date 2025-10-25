@@ -72,11 +72,18 @@ export const login = async (req, res, next) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Match cookie settings
-    path: '/', // Must match cookie path
-  });
-  res.json({ message: 'Logged out' });
+  try {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
+    });
+    res.json({ message: 'Logged out' });
+  } catch (err) {
+    // Even if cookie clear fails, return success
+    // Frontend should clear local state regardless
+    console.error('Logout error:', err);
+    res.json({ message: 'Logged out' });
+  }
 };
