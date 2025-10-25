@@ -8,6 +8,14 @@ import toast from 'react-hot-toast';
 import Panel from '../components/ui/Panel.jsx';
 import Button from '../components/ui/Button.jsx';
 
+const getApiUrl = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    return apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
+  }
+  return '/api';
+};
+
 const MAX_TEXT_LENGTH = 200;
 
 const Post = () => {
@@ -29,13 +37,18 @@ const Post = () => {
       setSubmitting(true);
       loading.start('Uploading images...');
       
-      // Upload images first
+      const apiBaseUrl = getApiUrl();
+      
       let imageUrlA = '';
       let imageUrlB = '';
       if (optionA.file) {
         const fd = new FormData();
         fd.append('image', optionA.file);
-        const resA = await fetch('/api/dilemmas/upload', { method: 'POST', body: fd, credentials: 'include' });
+        const resA = await fetch(`${apiBaseUrl}/dilemmas/upload`, { 
+          method: 'POST', 
+          body: fd, 
+          credentials: 'include' 
+        });
         const dataA = await resA.json();
         if (!resA.ok) throw new Error(dataA.error || 'Upload failed');
         imageUrlA = dataA.url;
@@ -43,7 +56,11 @@ const Post = () => {
       if (optionB.file) {
         const fd = new FormData();
         fd.append('image', optionB.file);
-        const resB = await fetch('/api/dilemmas/upload', { method: 'POST', body: fd, credentials: 'include' });
+        const resB = await fetch(`${apiBaseUrl}/dilemmas/upload`, { 
+          method: 'POST', 
+          body: fd, 
+          credentials: 'include' 
+        });
         const dataB = await resB.json();
         if (!resB.ok) throw new Error(dataB.error || 'Upload failed');
         imageUrlB = dataB.url;
