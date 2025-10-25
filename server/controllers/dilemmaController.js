@@ -1,5 +1,13 @@
 import Dilemma from '../models/Dilemma.js';
 import User from '../models/User.js';
+import { v2 as cloudinary } from 'cloudinary';
+
+const getPublicIdFromUrl = (url) => {
+  if (!url) return null;
+  const parts = url.split('/');
+  const filename = parts[parts.length - 1];
+  return filename.split('.')[0];
+};
 
 export const getDilemmas = async (req, res, next) => {
   try {
@@ -117,8 +125,28 @@ export const updateDilemma = async (req, res, next) => {
 
 export const deleteDilemma = async (req, res, next) => {
   try {
-    const dilemma = await Dilemma.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
+    const dilemma = await Dilemma.findOne({ _id: req.params.id, userId: req.user.id });
     if (!dilemma) return res.status(404).json({ error: 'Not found or unauthorized' });
+    
+    const imageUrls = [
+      dilemma.optionA?.imageUrl,
+      dilemma.optionB?.imageUrl
+    ].filter(Boolean);
+    
+    await Dilemma.findByIdAndDelete(req.params.id);
+    
+    if (imageUrls.length > 0) {
+      const deletePromises = imageUrls.map(url => {
+        const publicId = getPublicIdFromUrl(url);
+        if (publicId) {
+          return cloudinary.uploader.destroy(publicId).catch(err => {
+            console.error('Failed to delete image from Cloudinary:', err);
+          });
+        }
+      });
+      await Promise.allSettled(deletePromises);
+    }
+    
     res.json({ message: 'Deleted' });
   } catch (err) {
     next(err);

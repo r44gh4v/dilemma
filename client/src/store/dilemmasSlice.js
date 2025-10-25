@@ -65,7 +65,7 @@ export const voteDilemma = createAsyncThunk('dilemmas/voteDilemma', async ({ id,
   }
 });
 
-export const likeDilemma = createAsyncThunk('dilemmas/likeDilemma', async ({ id, currentLikeCount }, { rejectWithValue }) => {
+export const likeDilemma = createAsyncThunk('dilemmas/likeDilemma', async ({ id }, { rejectWithValue }) => {
   try {
     const res = await api.post(`/dilemmas/${id}/like`);
     return { id, likeCount: res.data.likeCount, userLiked: res.data.userLiked };
@@ -106,13 +106,6 @@ const dilemmasSlice = createSlice({
   reducers: {
     incrementPage: (state) => {
       state.page += 1;
-    },
-    clearDilemmas: (state) => {
-      state.dilemmas = [];
-      state.userDilemmas = [];
-      state.singleDilemma = null;
-      state.page = 1;
-      state.hasMore = true;
     },
   },
   extraReducers: (builder) => {
@@ -257,5 +250,5 @@ const dilemmasSlice = createSlice({
   },
 });
 
-export const { incrementPage, clearDilemmas } = dilemmasSlice.actions;
+export const { incrementPage } = dilemmasSlice.actions;
 export default dilemmasSlice.reducer;

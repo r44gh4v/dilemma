@@ -6,20 +6,17 @@ import DilemmaCard from '../components/DilemmaCard.jsx';
 
 const DilemmaView = () => {
   const { id } = useParams();
-  const { singleDilemma, loading } = useSingleDilemma();
+  const { singleDilemma } = useSingleDilemma();
   const { execute } = useAsyncAction('singleDilemma');
   
-  // Prevent re-fetch when ID hasn't changed
   const lastIdRef = useRef(null);
 
   useEffect(() => {
     if (lastIdRef.current === id) return;
     lastIdRef.current = id;
     execute(fetchDilemmaById(id), 'Loading dilemma...');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, execute]);
 
-  if (loading && !singleDilemma) return null;
   if (!singleDilemma) return null;
 
   return (

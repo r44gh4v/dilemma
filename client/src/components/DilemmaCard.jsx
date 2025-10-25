@@ -55,7 +55,6 @@ const DilemmaCard = memo(({ dilemma, onDelete, showComments = true }) => {
   const percentB = Math.round(((dilemma.votesB || 0) / total) * 100);
   const hasImageA = !!dilemma.optionA?.imageUrl;
   const hasImageB = !!dilemma.optionB?.imageUrl;
-  const showImages = hasImageA || hasImageB;
 
   return (
     <Panel className="sm:p-8 mb-8 hover:shadow-glow-intense transition-all duration-300">
@@ -88,25 +87,23 @@ const DilemmaCard = memo(({ dilemma, onDelete, showComments = true }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
         <VoteOption
-          label="Option A"
           imageUrl={dilemma.optionA.imageUrl}
           text={dilemma.optionA.text}
           votes={dilemma.votesA}
           percent={percentA}
           onVote={handleVoteA}
           selected={selectedVote === 'A'}
-          showImage={showImages}
+          showImage={hasImageA}
         />
 
         <VoteOption
-          label="Option B"
           imageUrl={dilemma.optionB.imageUrl}
           text={dilemma.optionB.text}
           votes={dilemma.votesB}
           percent={percentB}
           onVote={handleVoteB}
           selected={selectedVote === 'B'}
-          showImage={showImages}
+          showImage={hasImageB}
         />
       </div>
 

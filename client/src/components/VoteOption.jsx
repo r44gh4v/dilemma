@@ -1,14 +1,13 @@
 import { memo } from 'react';
 
 const VoteOption = memo(({
-  label,
   imageUrl,
   text,
   votes,
   percent,
   onVote,
   selected,
-  showImage = true
+  showImage
 }) => (
   <button
     type="button"
@@ -28,27 +27,23 @@ const VoteOption = memo(({
       style={{ width: `${percent}%` }}
     ></div>
 
-    <div className="relative z-10">
-      {showImage && (
-        imageUrl ? (
+    <div className="relative z-10 flex flex-col flex-1">
+      <div className="flex-1 flex flex-col items-center justify-center">
+        {showImage && imageUrl && (
           <img
             src={imageUrl}
-            alt={label}
+            alt="Option"
             className="w-full h-[12rem] mb-3 object-contain border-1 border-light-blue border-opacity-40 hover:border-accent-blue hover:border-opacity-90 hover:shadow-glow-strong transition-all duration-300"
             loading="lazy"
           />
-        ) : (
-          <div className="w-full h-[12rem] mb-3 flex items-center justify-center border-2 border-dashed border-light-blue border-opacity-40 text-light-blue opacity-50">
-            No image
-          </div>
-        )
-      )}
+        )}
 
-      <p className="text-white text-base text-center sm:text-lg font-mono mb-4 break-words leading-relaxed">
-        {text}
-      </p>
+        <p className="text-white text-base text-center sm:text-lg font-mono break-words leading-relaxed">
+          {text}
+        </p>
+      </div>
 
-      <div className="mt-2 ">
+      <div className="mt-4">
         <div className={`px-4 py-2 flex justify-between text-sm font-mono font-bold text-accent-blue bg-dark-blue bg-opacity-60 backdrop-blur-sm border border-accent-blue border-opacity-10 transition-all duration-300`}>
 
           <div className="relative z-10 tracking-wider">
